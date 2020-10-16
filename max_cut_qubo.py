@@ -58,8 +58,6 @@ def get_qubo(nodes, edges):
     Q = {}
     
     for i, j in G.edges:
-        Q[(i, j)] = gamma
-        
         # Populate edge_dict based on the number of edges each node is a part of 
         if i in edge_dict:
             edge_dict[i] = edge_dict[i] + 1
@@ -69,10 +67,12 @@ def get_qubo(nodes, edges):
             edge_dict[j] = edge_dict[j] + 1
         else:
             edge_dict[j] = 1
+        
+        Q[(i, j)] = gamma 
 
     for i in G.nodes:
-        Q[(i, i)] = -1 + (-1 * edge_dict[i])
-    # print(edge_dict)
+        Q[(i, i)] = (-1 * edge_dict[i])
+    print(edge_dict)
     # print(Q)
     return Q
 
