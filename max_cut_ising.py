@@ -48,37 +48,37 @@ def get_ising(nodes, edges):
         nodes(list of integers): nodes for the graph
         edges(list of tuples): each tuple represents an edge in the graph
     """
+    # # Set gamma
+    # gamma = 3
+    
+    # # Create empty Ising dicts for h and J
+    # h = {}
+    # J = {}
+
+    # # Create dict to track number of edges per node
+    # edge_dict = dict.fromkeys(nodes, 0)
+
+    # # Populate Ising representation
+    # for u, v in G.edges:
+    #     J[(u, v)] = gamma / 4
+        
+    #     # Populate edge_dict based on the number of edges each node is a part of 
+    #     if u in edge_dict:
+    #         edge_dict[u] = edge_dict[u] + 1
+    #     else:
+    #         edge_dict[u] = 1
+    #     if v in edge_dict:
+    #         edge_dict[v] = edge_dict[v] + 1
+    #     else:
+    #         edge_dict[v] = 1
+    
+    # for n in G.nodes:
+    #     h[n] = -1 * (0.5) + (gamma * (edge_dict[n] * 0.25))
+
+    # return h, J
     # Set gamma
     gamma = 3
     
-    # Create empty Ising dicts for h and J
-    h = {}
-    J = {}
-
-    # Create dict to track number of edges per node
-    edge_dict = dict.fromkeys(nodes, 0)
-
-    # Populate Ising representation
-    for u, v in G.edges:
-        J[(u, v)] = gamma / 4
-        
-        # Populate edge_dict based on the number of edges each node is a part of 
-        if u in edge_dict:
-            edge_dict[u] = edge_dict[u] + 1
-        else:
-            edge_dict[u] = 1
-        if v in edge_dict:
-            edge_dict[v] = edge_dict[v] + 1
-        else:
-            edge_dict[v] = 1
-    
-    for n in G.nodes:
-        h[n] = -1 * (0.5) + (gamma * (edge_dict[n] * 0.25))
-
-    return h, J
-    # Set gamma
-    gamma = 2
-    
     # Create dict to track number of edges per node
     edge_dict = dict.fromkeys(nodes, 0)
 
@@ -88,9 +88,9 @@ def get_ising(nodes, edges):
     
     # Populate Ising representation
     for u, v in G.edges:
-        J[(u, v)] = gamma / 4
+        J[(u, v)] = gamma * 0.25
         
-        # Populate edge_dict based on the number of edges each node is a part of 
+        # Populate edge_dict for number of edges per node
         if u in edge_dict:
             edge_dict[u] = edge_dict[u] + 1
         else:
@@ -100,11 +100,8 @@ def get_ising(nodes, edges):
         else:
             edge_dict[v] = 1
 
-    for i in G.nodes:
-        Q[(i, i)] = -1 + (-1 * edge_dict[i])
-
     for n in G.nodes:
-        h[n] = -1 * (0.5) + (gamma * (edge_dict[n] * 0.25))
+        h[n] = (-1 * (0.5) * edge_dict[n]) + (gamma *(edge_dict[n] * 0.25))
 
     print(h, J)
     return h, J
@@ -126,21 +123,17 @@ def run_on_qpu(h, J, sampler, num_reads):
 ## ------- Main program -------
 if __name__ == "__main__":
 
-    # # Test Graph 0 (solution = 2)
+    # # Test Graph 0 (solution = 2, 1)
     # nodes = [0, 1, 2]
     # edges = [(0, 1), (1, 2)]
 
-    # # Test Graph 1 (solution = 2)
+    # # Test Graph 1 (solution = 2, 3)
     # nodes = [0, 1, 2, 3, 4]
     # edges = [(0, 1), (0, 2), (1, 2), (1, 3), (2, 4), (3, 4)]
 
-    # # Test Graph 2 (solution = 5)
-    # nodes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    # edges = [(0, 1), (0, 2), (1, 3), (2, 3), (3, 4), (4, 6), (5, 6), (5, 7), (6, 8), (7, 8)]
-
-    # # Test Graph 3 (solution = 5)
-    # nodes = [0, 1, 2, 3, 4, 5, 6, 7]
-    # edges = [(0, 1), (0, 2), (1, 3), (2, 3), (3, 4), (3, 5), (3, 6), (4, 7), (6, 7)]
+    # # Test Graph 2
+    # nodes = [0, 1, 2]
+    # edges = [(0, 1), (0, 2), (1, 2)]
 
     # Test Graph 4 (solution = 9)
     nodes = list(i for i in range(24))
@@ -162,8 +155,8 @@ if __name__ == "__main__":
     sampler = EmbeddingComposite(DWaveSampler())
     sample_set = run_on_qpu(h, J, sampler, num_reads)
     
-    # Print the solution
-    # print(sample_set)    
+   # Print the solution
+    print(sample_set)    
     result = list(sample_set.first.sample[i] for i in nodes)
     set_1 = []
     set_2 = []
@@ -173,6 +166,15 @@ if __name__ == "__main__":
         else:
             set_2.append(i)
     print('The maximum cut is achieved by dividing into sets of length', len(set_1), 'and', len(set_2))
+
+    # Calculate max_cuts
+    max_cuts = 0
+    for (i, j) in edges:
+        if i in set_1 and j in set_2:
+            max_cuts += 1
+        elif j in set_1 and i in set_2:
+            max_cuts += 1
+    print('The maximum number of cuts is ', max_cuts)
     print(set_1, set_2)
 
     # Visualize the results

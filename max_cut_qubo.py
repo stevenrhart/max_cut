@@ -58,7 +58,7 @@ def get_qubo(nodes, edges):
     Q = {}
     
     for i, j in G.edges:
-        # Populate edge_dict based on the number of edges each node is a part of 
+        # Populate edge_dict for number of edges per node
         if i in edge_dict:
             edge_dict[i] = edge_dict[i] + 1
         else:
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     Q = get_qubo(nodes, edges)
 
     chainstrength = 3 # update
-    num_reads = 10 # update
+    num_reads = 100 # update
 
     # Define the sampler and run the problem
     sampler = EmbeddingComposite(DWaveSampler())
