@@ -49,7 +49,7 @@ def get_ising(nodes, edges):
         edges(list of tuples): each tuple represents an edge in the graph
     """   
     # Set gamma
-    gamma = 1
+    gamma = 2
     
     # Create dict to track number of edges per node
     edge_dict = dict.fromkeys(nodes, 0)
@@ -59,9 +59,9 @@ def get_ising(nodes, edges):
     J = {}
     
     # Populate Ising representation
+    # TODO: Fix this
     for u, v in G.edges:
-        # J[(u, v)] = gamma * 0.25
-        J[(u, v)] = 0.5
+        J[(u, v)] = gamma * 0.25
         
         # Populate edge_dict for number of edges per node
         if u in edge_dict:
@@ -75,9 +75,7 @@ def get_ising(nodes, edges):
 
     for n in G.nodes:
         h[n] = (-1 * (0.5) * edge_dict[n]) + (gamma *(edge_dict[n] * 0.25))
-        # h[n] = (-1 * (0.5) * edge_dict[n]) + (gamma * 0.25)
-        # h[n] = (-0.25 * edge_dict[n])
-    print(h, J)
+    # print(h, J)
     return h, J
 
 def run_on_qpu(h, J, sampler, num_reads):
@@ -101,19 +99,19 @@ if __name__ == "__main__":
     # nodes = [0, 1, 2]
     # edges = [(0, 1), (1, 2)]
 
-    # # Test Graph 1 (solution = 2, 3)
-    # nodes = [0, 1, 2, 3, 4]
-    # edges = [(0, 1), (0, 2), (1, 2), (1, 3), (2, 4), (3, 4)]
+    # Test Graph 1 (solution = 2, 3)
+    nodes = [0, 1, 2, 3, 4]
+    edges = [(0, 1), (0, 2), (1, 2), (1, 3), (2, 4), (3, 4)]
 
     # # Test Graph 2
     # nodes = [0, 1, 2]
     # edges = [(0, 1), (0, 2), (1, 2)]
 
-    # Test Graph 4 (solution = TBD)
-    nodes = list(i for i in range(24))
-    edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (0, 11), 
-    (0, 12), (1, 13), (2, 14), (3, 15), (4, 16), (5, 17), (6, 18), (7, 19), (8, 20), (9, 21), (10, 22), (11, 23),
-    (12, 16), (12, 20), (13, 17), (13, 21), (14, 18), (14, 22), (15, 19), (15, 23), (16, 20), (17, 21), (18, 22), (19, 23)]
+    # # Test Graph 4 (solution = TBD)
+    # nodes = list(i for i in range(24))
+    # edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (0, 11), 
+    # (0, 12), (1, 13), (2, 14), (3, 15), (4, 16), (5, 17), (6, 18), (7, 19), (8, 20), (9, 21), (10, 22), (11, 23),
+    # (12, 16), (12, 20), (13, 17), (13, 21), (14, 18), (14, 22), (15, 19), (15, 23), (16, 20), (17, 21), (18, 22), (19, 23)]
     
     # Create graph
     G = create_graph(edges)
@@ -129,7 +127,7 @@ if __name__ == "__main__":
     sample_set = run_on_qpu(h, J, sampler, num_reads)
     
    # Print the solution
-    print(sample_set)    
+    # print(sample_set)
     result = list(sample_set.first.sample[i] for i in nodes)
     set_1 = []
     set_2 = []
