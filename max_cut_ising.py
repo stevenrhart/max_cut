@@ -47,37 +47,9 @@ def get_ising(nodes, edges):
     Args:
         nodes(list of integers): nodes for the graph
         edges(list of tuples): each tuple represents an edge in the graph
-    """
-    # # Set gamma
-    # gamma = 3
-    
-    # # Create empty Ising dicts for h and J
-    # h = {}
-    # J = {}
-
-    # # Create dict to track number of edges per node
-    # edge_dict = dict.fromkeys(nodes, 0)
-
-    # # Populate Ising representation
-    # for u, v in G.edges:
-    #     J[(u, v)] = gamma / 4
-        
-    #     # Populate edge_dict based on the number of edges each node is a part of 
-    #     if u in edge_dict:
-    #         edge_dict[u] = edge_dict[u] + 1
-    #     else:
-    #         edge_dict[u] = 1
-    #     if v in edge_dict:
-    #         edge_dict[v] = edge_dict[v] + 1
-    #     else:
-    #         edge_dict[v] = 1
-    
-    # for n in G.nodes:
-    #     h[n] = -1 * (0.5) + (gamma * (edge_dict[n] * 0.25))
-
-    # return h, J
+    """   
     # Set gamma
-    gamma = 3
+    gamma = 1
     
     # Create dict to track number of edges per node
     edge_dict = dict.fromkeys(nodes, 0)
@@ -88,7 +60,8 @@ def get_ising(nodes, edges):
     
     # Populate Ising representation
     for u, v in G.edges:
-        J[(u, v)] = gamma * 0.25
+        # J[(u, v)] = gamma * 0.25
+        J[(u, v)] = 0.5
         
         # Populate edge_dict for number of edges per node
         if u in edge_dict:
@@ -102,7 +75,8 @@ def get_ising(nodes, edges):
 
     for n in G.nodes:
         h[n] = (-1 * (0.5) * edge_dict[n]) + (gamma *(edge_dict[n] * 0.25))
-
+        # h[n] = (-1 * (0.5) * edge_dict[n]) + (gamma * 0.25)
+        # h[n] = (-0.25 * edge_dict[n])
     print(h, J)
     return h, J
 
@@ -135,12 +109,11 @@ if __name__ == "__main__":
     # nodes = [0, 1, 2]
     # edges = [(0, 1), (0, 2), (1, 2)]
 
-    # Test Graph 4 (solution = 9)
+    # Test Graph 4 (solution = TBD)
     nodes = list(i for i in range(24))
-    edges = [(12, 16), (12, 20), (13, 17), (13, 21), (14, 18), (14, 22), (15, 19), (15, 23), (16, 20),
-     (17, 21), (18, 22), (19, 23), (0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9),
-     (9, 10), (10, 11), (0, 11), (0, 12), (1, 13), (2, 14), (3, 15), (4, 16), (5, 17), (6, 18), (7, 19),
-     (8, 20), (9, 21), (10, 22), (11, 23)]
+    edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (0, 11), 
+    (0, 12), (1, 13), (2, 14), (3, 15), (4, 16), (5, 17), (6, 18), (7, 19), (8, 20), (9, 21), (10, 22), (11, 23),
+    (12, 16), (12, 20), (13, 17), (13, 21), (14, 18), (14, 22), (15, 19), (15, 23), (16, 20), (17, 21), (18, 22), (19, 23)]
     
     # Create graph
     G = create_graph(edges)
