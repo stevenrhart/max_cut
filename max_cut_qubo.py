@@ -48,32 +48,26 @@ def get_qubo(nodes, edges):
         nodes(list of integers): nodes for the graph
         edges(list of tuples): each tuple represents an edge in the graph
     """
-    # Set gamma
-    gamma = 2
-    
     # Create dict to track number of edges per node
-    edge_dict = dict.fromkeys(nodes, 0)
+    d = dict.fromkeys(nodes, 0)
 
     # Create QUBO representation
     Q = {}
     
     for i, j in G.edges:
-        # Populate edge_dict for number of edges per node
-        if i in edge_dict:
-            edge_dict[i] = edge_dict[i] + 1
-        else:
-            edge_dict[i] = 1
-        if j in edge_dict:
-            edge_dict[j] = edge_dict[j] + 1
-        else:
-            edge_dict[j] = 1
+        # Add quadratic terms 
+        Q[(i, j)] = 2 
         
-        Q[(i, j)] = gamma 
+        # Populate d for number of edges per node
+        if i in d:
+            d[i] += 1
+        if j in d:
+            d[j] += 1
 
     for i in G.nodes:
-        Q[(i, i)] = (-1 * edge_dict[i])
-    # print(Q)
-    # print(len(edges))
+        # Add linear terms
+        Q[(i, i)] = (-1 * d[i])
+
     return Q
 
 def run_on_qpu(Q, sampler, chainstrength, num_reads):
@@ -82,6 +76,8 @@ def run_on_qpu(Q, sampler, chainstrength, num_reads):
     Args:
         Q(dict): a representation of a QUBO
         sampler(dimod.Sampler): a sampler that uses the QPU
+        chain_strength(int): the chainstrength value to use in the sampler
+        num_reads(int): the number of reads to use in the sampler 
     """
     sample_set = sampler.sample_qubo(Q, chain_strength=chainstrength, num_reads=num_reads)
 
@@ -99,8 +95,8 @@ if __name__ == "__main__":
     # edges = [(0, 1), (0, 2), (1, 2), (1, 3), (2, 4), (3, 4)]
 
     # # Test Graph 2
-    # nodes = [0, 1, 2]
-    # edges = [(0, 1), (0, 2), (1, 2)]
+    # nodes = [0, 1, 2, 3, 4, 5, 6]
+    # edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 0)]
 
     # Test Graph 4 (solution = 30)
     nodes = list(i for i in range(24))

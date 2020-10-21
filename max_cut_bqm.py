@@ -22,6 +22,9 @@ import dwave_networkx as dnx
 # Import dwave.system packages for the QPU
 from dwave.system import DWaveSampler, EmbeddingComposite
 
+# Import BQM package for conversions
+from dimod import BinaryQuadraticModel
+
 # Import matplotlib.pyplot to draw graphs on screen
 import matplotlib
 matplotlib.use("agg")
@@ -41,8 +44,9 @@ def create_graph(edges):
 
     return G
 
-def get_ising(nodes, edges):
-    """Returns a dictionary representing the Ising formulation.
+
+def get_bqm(nodes, edges):
+    """Returns a bqm representation of the problem.
 
     Args:
         nodes(list of integers): nodes for the graph
@@ -51,42 +55,34 @@ def get_ising(nodes, edges):
     # Create dict to track number of edges per node
     d = dict.fromkeys(nodes, 0)
 
-    # Create empty Ising dicts for h and J
-    h = {}
-    J = {}
+    # Create QUBO based on min(SUM(-xi - xj + 2xi*xj))
+    Q = {}
     
-    # Populate Ising representation
-    for u, v in G.edges:
-        J[(u, v)] = 0.5 
+    for i, j in G.edges:
+        # Add quadratic terms 
+        Q[(i, j)] = 2 
         
         # Populate d for number of edges per node
-        if u in d:
-            d[u] += 1
-        if v in d:
-            d[v] += 1
+        if i in d:
+            d[i] += 1
+        if j in d:
+            d[j] += 1
 
-    for n in G.nodes:
-        h[n] = 0 
-
-    return h, J
-
-def run_on_qpu(h, J, sampler, chain_strength, num_reads):
-    """Runs the Ising problem on the sampler provided.
-
-    Args:
-        h(dict): a representation of the linear terms of the ising problem
-        J(dict): a representation of the quadratic terms of the ising problem
-        sampler(dimod.Sampler): a sampler that uses the QPU
-        chain_strength(int): the chainstrength value to use in the sampler
-        num_reads(int): the number of reads to use in the sampler 
-    """
-    sample_set = sampler.sample_ising(h, J, chain_strength=chainstrength, num_reads=num_reads)
+    for i in G.nodes:
+        # Add linear terms
+        Q[(i, i)] = (-1 * d[i])
     
-    return sample_set
+    # Convert to bqm
+    bqm = BinaryQuadraticModel.from_qubo(Q)
 
-
+    return bqm
+    
 ## ------- Main program -------
 if __name__ == "__main__":
+
+    ###############
+    # TEST GRAPHS #
+    ###############
 
     # # Test Graph 0 (solution = 2, 1)
     # nodes = [0, 1, 2]
@@ -97,32 +93,26 @@ if __name__ == "__main__":
     # edges = [(0, 1), (0, 2), (1, 2), (1, 3), (2, 4), (3, 4)]
 
     # # Test Graph 2
-    # nodes = [0, 1, 2]
-    # edges = [(0, 1), (0, 2), (1, 2)]
+    # nodes = [0, 1, 2, 3, 4, 5, 6]
+    # edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 0)]
 
-    # Test Graph 4 (solution = TBD)
+    # Test Graph 4 (solution = 30)
     nodes = list(i for i in range(24))
     edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (0, 11), 
     (0, 12), (1, 13), (2, 14), (3, 15), (4, 16), (5, 17), (6, 18), (7, 19), (8, 20), (9, 21), (10, 22), (11, 23),
     (12, 16), (12, 20), (13, 17), (13, 21), (14, 18), (14, 22), (15, 19), (15, 23), (16, 20), (17, 21), (18, 22), (19, 23)]
     
-    # Create graph
-    G = create_graph(edges)
-
-    # Get Ising formulation
-    h, J = get_ising(nodes, edges)
-
-    # Set chainstrength & num_reads
-    chainstrength = 3
-    num_reads = 10 # update
-
+    #####################
     
+    G = create_graph(edges)
+    bqm = get_bqm(nodes, edges)
+
     # Define the sampler and run the problem
     sampler = EmbeddingComposite(DWaveSampler())
-    sample_set = run_on_qpu(h, J, sampler, chainstrength, num_reads)
-    
-   # Print the solution
-    # print(sample_set)
+    sample_set = sampler.sample(bqm)
+
+    # Print the solution
+    # print(sample_set) 
     result = list(sample_set.first.sample[i] for i in nodes)
     set_1 = []
     set_2 = []
