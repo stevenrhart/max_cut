@@ -65,6 +65,7 @@ def get_bqm(Q):
 ## ------- Main program -------
 if __name__ == "__main__":
 
+    # TODO: Consider updating such that graphs can be randomly generated based on user input of number of nodes
     # # Small Test Graph (solution = 2, 1)
     # nodes = [0, 1, 2]
     # edges = [(0, 1), (1, 2)]
