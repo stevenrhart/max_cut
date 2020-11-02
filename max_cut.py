@@ -119,10 +119,8 @@ if __name__ == "__main__":
     
     # Calculate max_cuts
     max_cuts = 0
-    for (i, j) in G.edges:
-        if i in set_1 and j in set_2:
-            max_cuts += 1
-        elif j in set_1 and i in set_2:
+    for u, v in G.edges:
+        if (u in set_1 and v in set_2) or (u in set_2 and v in set_1):
             max_cuts += 1
     
     # Print the solution
